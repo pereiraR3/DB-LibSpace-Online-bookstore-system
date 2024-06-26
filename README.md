@@ -11,7 +11,7 @@
 
 ### Dicionário de Dados
 
-O dicionário é um livro ou recurso que contém palavras organizadas em ordem alfabética, cada uma acompanhada de informações sobre o significado, pronúncia, uso e, em alguns casos, origem. A principal utilidade de um dicionário é fornecer definições claras e compreensíveis das palavras, ajudando as pessoas a entenderem o significado e o contexto de termos específicos em uma língua. Dado isso, foi elaborado o seguinte dicionário de dados, de modo a facilitar a leitura do DER.
+O dicionário é um recurso que contém palavras organizadas em ordem alfabética, cada uma acompanhada de informações sobre o significado, pronúncia, uso e, em alguns casos, origem. A principal utilidade de um dicionário é fornecer definições claras e compreensíveis das palavras, ajudando as pessoas a entenderem o significado e o contexto de termos específicos em uma língua. Dado isso, foi elaborado o seguinte dicionário de dados, de modo a facilitar a leitura do DER.
 
 #### Dicionário Entidade & Relacionamento
 
@@ -57,12 +57,23 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `estado` (VARCHAR(60), NOT NULL): Nome do estado.
   - `cidade` (VARCHAR(60), NOT NULL): Nome da cidade.
 
+- **Editora**
+  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único da editora.
+  - `nome` (VARCHAR(120), NOT NULL): Nome da editora.
+  - `cnpj` (BIGINT, UNIQUE, NOT NULL): CNPJ da editora.
+  - `cep` (BIGINT, NOT NULL): CEP da editora.
+  - `telefone` (CHAR(11), NOT NULL): Telefone da editora.
+  - `email` (VARCHAR(120), UNIQUE, NOT NULL): E-mail da editora.
+  - `url_website` (TEXT): URL do site da editora.
+
 - **Livro**
   - `id` (BIGSERIAL, PRIMARY KEY): Identificador único do livro.
+  - `id_editora` (BIGINT, FOREIGN KEY): Identificador da editora.
+  - `preco` (MONEY, NOT NULL): Preço do livro.
   - `titulo` (VARCHAR(120), NOT NULL): Título do livro.
   - `quantidade` (SMALLINT, NOT NULL): Quantidade disponível.
   - `autor_nome` (VARCHAR(160), NOT NULL): Nome do autor.
-  - `ano_publicacao` (DATE, NOT NULL): Ano de publicação.
+  - `ano_publicacao` (SMALLINT, NOT NULL): Ano de publicação.
   - `capa_url` (TEXT, NOT NULL): URL da capa do livro.
 
 - **Livro Físico**
@@ -105,20 +116,6 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `id_livro` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do livro.
   - `id_categoria` (BIGINT, NOT NULL, FOREIGN KEY): Identificador da categoria.
   - `UNIQUE (id_livro, id_categoria)`: Constrição de unicidade para garantir que a combinação livro-categoria seja única.
-
-- **Editora**
-  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único da editora.
-  - `nome` (VARCHAR(120), NOT NULL): Nome da editora.
-  - `cnpj` (BIGINT, UNIQUE, NOT NULL): CNPJ da editora.
-  - `cep` (BIGINT, NOT NULL): CEP da editora.
-  - `telefone` (BIGINT, NOT NULL): Telefone da editora.
-  - `email` (VARCHAR(120), UNIQUE, NOT NULL): E-mail da editora.
-  - `url_website` (TEXT): URL do site da editora.
-
-- **Livro Pertence a Editora**
-  - `id_livro` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do livro.
-  - `id_editora` (BIGINT, NOT NULL, FOREIGN KEY): Identificador da editora.
-  - `UNIQUE (id_livro, id_editora)`: Constrição de unicidade para garantir que a combinação livro-editora seja única.
 
 - **Oferta**
   - `id` (BIGSERIAL, PRIMARY KEY): Identificador único da oferta.
@@ -190,13 +187,26 @@ CREATE TABLE endereco (
     CONSTRAINT fk_user_in_endereco FOREIGN KEY (id_user) REFERENCES users (id)
 );
 
+CREATE TABLE editora (
+    id BIGSERIAL PRIMARY KEY, 
+    nome VARCHAR(120) NOT NULL,
+    cnpj BIGINT UNIQUE NOT NULL,
+    cep BIGINT NOT NULL, 
+    telefone CHAR(11) NOT NULL, 
+    email VARCHAR(120) UNIQUE NOT NULL,
+    url_website TEXT
+);
+
 CREATE TABLE livro (
     id BIGSERIAL PRIMARY KEY, 
+    id_editora BIGINT,
+    preco MONEY NOT NULL,   
     titulo VARCHAR(120) NOT NULL, 
     quantidade SMALLINT NOT NULL,
     autor_nome VARCHAR(160) NOT NULL,
-    ano_publicacao DATE NOT NULL,
-    capa_url TEXT NOT NULL
+    ano_publicacao SMALLINT NOT NULL,
+    capa_url TEXT NOT NULL,
+    CONSTRAINT fk_editora_in_livro FOREIGN KEY (id_editora) REFERENCES editora (id)
 );
 
 CREATE TABLE livro_fisico (
@@ -253,24 +263,6 @@ CREATE TABLE livro_possui_categoria (
     CONSTRAINT fk_categoria_in_livro_possui_categoria FOREIGN KEY (id_categoria) REFERENCES categoria (id)
 );
 
-CREATE TABLE editora (
-    id BIGSERIAL PRIMARY KEY, 
-    nome VARCHAR(120) NOT NULL,
-    cnpj BIGINT UNIQUE NOT NULL,
-    cep BIGINT NOT NULL, 
-    telefone BIGINT NOT NULL, 
-    email VARCHAR(120) UNIQUE NOT NULL,
-    url_website TEXT
-);
-
-CREATE TABLE livro_pertence_a_editora (
-    id_livro BIGINT NOT NULL,
-    id_editora BIGINT NOT NULL,
-    CONSTRAINT uq_idlivro_e_ideditora UNIQUE (id_livro, id_editora),
-    CONSTRAINT fk_livro_in_livro_pertence_a_editora FOREIGN KEY (id_livro) REFERENCES livro (id), 
-    CONSTRAINT fk_editora_in_livro_pertence_a_editora FOREIGN KEY (id_editora) REFERENCES editora (id)
-);
-
 CREATE TABLE oferta (
     id BIGSERIAL PRIMARY KEY, 
     id_livro BIGINT NOT NULL,
@@ -285,7 +277,7 @@ CREATE TABLE carrinho (
     id BIGSERIAL PRIMARY KEY, 
     id_user BIGINT NOT NULL,
     data_criacao DATE DEFAULT CURRENT_DATE,
-    status BOOLEAN DEFAULT FALSE,
+    status BOOLEAN DEFAULT TRUE,
     CONSTRAINT fk_user_in_carrinho FOREIGN KEY (id_user) REFERENCES users (id)
 );
 
@@ -321,7 +313,7 @@ CREATE TABLE pagamento (
     data_pagamento DATE DEFAULT CURRENT_DATE, 
     CONSTRAINT fk_pedido_in_pagamento FOREIGN KEY (id_pedido) REFERENCES pedido (id)
 );
-````
+
 #
 
 ### SQL + COMMENT ON
@@ -332,9 +324,9 @@ CREATE TABLE pagamento (
 
 - Aqui, neste tópico o objetivo é calcular o peso em bytes de cada tabela, de acordo com os tipos de dados usados, além de fazer estimativas e construir projeções de consumo de armazenamento. 
 
--  <span style="color: red;">**Observação:** </span> a informação sobre ocupação em bytes de cada tipo de dado foi obtida diretamente da documentação do **PostgreSQL em 2024**.
+-  **Observação:** a informação sobre ocupação em bytes de cada tipo de dado foi obtida diretamente da documentação do **PostgreSQL em 2024**.
 
-#### <span style="color: red;">Tabelas</span>
+#### Tabelas
 
 ##### Users
 
@@ -449,10 +441,10 @@ CREATE TABLE pagamento (
 | nome            | VARCHAR(120)   | 120              |
 | cnpj            | BIGINT         | 8                |
 | cep             | BIGINT         | 8                |
-| telefone        | BIGINT         | 8                |
+| telefone        | CHAR(11)       | 11               |
 | email           | VARCHAR(120)   | 120              |
 | url_website     | TEXT           | 200 (estimado)   |
-| **Total**       |                | **472**          |
+| **Total**       |                | **475**          |
 
 ##### Livro Pertence a Editora
 
@@ -518,8 +510,7 @@ CREATE TABLE pagamento (
 | data_pagamento  | DATE           | 4                |
 | **Total**       |                | **128**          |
 
-
-#### <span style="color: red;">**Índices** </span>
+#### Índices
 
 ##### Users
 
