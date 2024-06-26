@@ -17,3 +17,5 @@ CREATE TRIGGER create_generate_oferta
 AFTER INSERT ON livro 
 FOR EACH ROW 
 EXECUTE PROCEDURE create_generate_oferta()
+
+-- TESTADO (100%)
