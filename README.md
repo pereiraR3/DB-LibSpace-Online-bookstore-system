@@ -1,8 +1,8 @@
 # Modelagem de Banco de Dados
 
-- Esse repositório se resume exclusivamente à Modelagem de Banco de Dados do projeto LibSpace, que, juntamente com mais 2 repositórios, faz parte do mesmo projeto.
-- Repositório Back-End: [BackEnd-LibSpace-Online-bookstore-system](https://github.com/pereiraR3/BackEnd-LibSpace-Online-bookstore-system)
-- Repositório Front-End: [FrontEnd-LibSpace-Online-bookstore-system](https://github.com/pereiraR3/FrontEnd-LibSpace-Online-bookstore-system)
+- Esse repositóprio se resume exclusivamente a Modelagem de Banco de Dados do projeto LibSpace que, no qual esse e mais 2 Repositórios fazem parte do mesmo projeto.
+- Repositório Back-End:
+- Repositório Front-End:
 
 ## Modelagem Conceitual
 
@@ -669,12 +669,3 @@ Triggers são mecanismos importantes em sistemas de banco de dados que permitem 
 
 
 <!-- Descrição da Trigger02 -->
-
-
-### PL Functions
-
---
-
-#### Function01
-
-
