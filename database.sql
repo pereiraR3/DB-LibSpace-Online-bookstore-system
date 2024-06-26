@@ -22,13 +22,27 @@ CREATE TABLE endereco (
     CONSTRAINT fk_user_in_endereco FOREIGN KEY (id_user) REFERENCES users (id)
 );
 
+
+CREATE TABLE editora (
+    id BIGSERIAL PRIMARY KEY, 
+    nome VARCHAR(120) NOT NULL,
+    cnpj BIGINT UNIQUE NOT NULL,
+    cep BIGINT NOT NULL, 
+    telefone CHAR(11) NOT NULL, 
+    email VARCHAR(120) UNIQUE NOT NULL,
+    url_website TEXT
+);
+
 CREATE TABLE livro (
     id BIGSERIAL PRIMARY KEY, 
+    id_editora BIGINT,
+    preco MONEY NOT NULL,   
     titulo VARCHAR(120) NOT NULL, 
     quantidade SMALLINT NOT NULL,
     autor_nome VARCHAR(160) NOT NULL,
-    ano_publicacao DATE NOT NULL,
-    capa_url TEXT NOT NULL
+    ano_publicacao SMALLINT NOT NULL,
+    capa_url TEXT NOT NULL,
+    CONSTRAINT fk_editora_in_livro FOREIGN KEY (id_editora) REFERENCES editora (id)
 );
 
 CREATE TABLE livro_fisico (
@@ -85,30 +99,13 @@ CREATE TABLE livro_possui_categoria (
     CONSTRAINT fk_categoria_in_livro_possui_categoria FOREIGN KEY (id_categoria) REFERENCES categoria (id)
 );
 
-CREATE TABLE editora (
-    id BIGSERIAL PRIMARY KEY, 
-    nome VARCHAR(120) NOT NULL,
-    cnpj BIGINT UNIQUE NOT NULL,
-    cep BIGINT NOT NULL, 
-    telefone BIGINT NOT NULL, 
-    email VARCHAR(120) UNIQUE NOT NULL,
-    url_website TEXT
-);
-
-CREATE TABLE livro_pertence_a_editora (
-    id_livro BIGINT NOT NULL,
-    id_editora BIGINT NOT NULL,
-    CONSTRAINT uq_idlivro_e_ideditora UNIQUE (id_livro, id_editora),
-    CONSTRAINT fk_livro_in_livro_pertence_a_editora FOREIGN KEY (id_livro) REFERENCES livro (id), 
-    CONSTRAINT fk_editora_in_livro_pertence_a_editora FOREIGN KEY (id_editora) REFERENCES editora (id)
-);
-
 CREATE TABLE oferta (
-    id BIGSERIAL PRIMARY KEY, 
+    id BIGSERIAL PRIMARY KEY NOT NULL, 
     id_livro BIGINT NOT NULL,
-    id_editora BIGINT,
+    id_editora BIGINT DEFAULT NULL,
     preco MONEY NOT NULL,
-    desconto DECIMAL(5, 2),
+    desconto DECIMAL(5, 2) DEFAULT 0,
+    CONSTRAINT uq_livro_e_id UNIQUE (id, id_livro),
     CONSTRAINT fk_livro_in_oferta FOREIGN KEY (id_livro) REFERENCES livro (id),
     CONSTRAINT fk_editora_in_oferta FOREIGN KEY (id_editora) REFERENCES editora (id)
 );
@@ -126,7 +123,7 @@ CREATE TABLE item_carrinho (
     id_user BIGINT NOT NULL,
     id_oferta BIGINT NOT NULL,
     id_carrinho BIGINT NOT NULL,
-    quantidade SMALLINT NOT NULL,
+    quantidade SMALLINT CHECK(quantidade > 0)NOT NULL,
     preco_unitario MONEY NOT NULL,
     CONSTRAINT uq_user_oferta_carrinho UNIQUE (id_user, id_oferta, id_carrinho),
     CONSTRAINT fk_user_in_item_carrinho FOREIGN KEY (id_user) REFERENCES users (id), 
