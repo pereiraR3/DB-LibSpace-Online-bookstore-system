@@ -46,33 +46,30 @@ CREATE TABLE livro (
 );
 
 CREATE TABLE livro_fisico (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     numero_de_paginas SMALLINT NOT NULL,
     peso SMALLINT NOT NULL,
     tipo_capa VARCHAR(60) NOT NULL,
     dimensao_altura SMALLINT NOT NULL,
     dimensao_largura SMALLINT NOT NULL,
     dimensao_profundidade SMALLINT NOT NULL,
-    CONSTRAINT fk_user_in_livrofisico FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_user_in_livrofisico FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE livro_ebook (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
-    CONSTRAINT fk_user_in_livroebook FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_LIVRO_in_livroebook FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE livro_audiobook (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
     narrador VARCHAR(120) NOT NULL, 
     url_download TEXT NOT NULL,
-    CONSTRAINT fk_user_in_livroaudiobook FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_livro_in_livroaudiobook FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE avaliacao (

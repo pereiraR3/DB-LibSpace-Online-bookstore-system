@@ -1,6 +1,6 @@
 # Modelagem de Banco de Dados
 
-- Esse repositóprio se resume exclusivamente a Modelagem de Banco de Dados do projeto LibSpace que, no qual esse e mais 2 Repositórios fazem parte do mesmo projeto.
+- Esse repositóprio se resume exclusivamente a Modelagem de Banco de Dados do projeto LibSpace, no qual esse e mais 2 Repositórios fazem parte do mesmo projeto.
 - Repositório [Back-End](https://github.com/pereiraR3/BackEnd-LibSpace-Online-bookstore-system)
 - Repositório [Front-End](https://github.com/pereiraR3/FrontEnd-LibSpace-Online-bookstore-system)
 
@@ -77,8 +77,7 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `capa_url` (TEXT, NOT NULL): URL da capa do livro.
 
 - **Livro Físico**
-  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único do livro físico.
-  - `id_user` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do usuário relacionado.
+  - `id_livro` (BIGSERIAL, PRIMARY KEY): Identificador único do livro físico e FK em relação a livro.
   - `numero_de_paginas` (SMALLINT, NOT NULL): Número de páginas.
   - `peso` (SMALLINT, NOT NULL): Peso do livro.
   - `tipo_capa` (VARCHAR(60), NOT NULL): Tipo de capa.
@@ -87,14 +86,12 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `dimensao_profundidade` (SMALLINT, NOT NULL): Profundidade do livro.
 
 - **Livro Ebook**
-  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único do e-book.
-  - `id_user` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do usuário relacionado.
+  - `id_livro` (BIGSERIAL, PRIMARY KEY): Identificador único do e-book e FK em relação a livro. 
   - `tamanho_arquivo` (SMALLINT, NOT NULL): Tamanho do arquivo.
   - `formato_arquivo` (VARCHAR(40), NOT NULL): Formato do arquivo.
 
 - **Livro Audiobook**
-  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único do audiobook.
-  - `id_user` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do usuário relacionado.
+  - `id_livro` (BIGSERIAL, PRIMARY KEY): Identificador único do audiobook e FK em relação a livro.
   - `tamanho_arquivo` (SMALLINT, NOT NULL): Tamanho do arquivo.
   - `formato_arquivo` (VARCHAR(40), NOT NULL): Formato do arquivo.
   - `narrador` (VARCHAR(120), NOT NULL): Nome do narrador.
@@ -156,7 +153,7 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
 
 ## Modelagem Lógica
 
-<!-- Descrição da modelagem lógica -->
+![Modelo Lógico](./logic/logic.png)
 
 ## Modelagem Física 
 
@@ -165,15 +162,20 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
 ```sql
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    cpf BIGINT UNIQUE NOT NULL,
+    cpf CHAR(11) UNIQUE NOT NULL,
     nome VARCHAR(60) NOT NULL, 
-    senha TEXT NOT NULL, 
-    email VARCHAR(120) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL, 
+    email VARCHAR(120) UNIQUE NOT NULL CHECK (email LIKE '%_@__%.__%'), 
     url_foto TEXT,
     url_website TEXT, 
     bio VARCHAR(2000) NOT NULL,
     role VARCHAR(20) NOT NULL
 );
+
+
+-- índices para melhorar operações de buscas em relação a usuários
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_cpf ON users(cpf);
 
 CREATE TABLE endereco (
     id BIGSERIAL PRIMARY KEY, 
@@ -186,6 +188,7 @@ CREATE TABLE endereco (
     cidade VARCHAR(60) NOT NULL,
     CONSTRAINT fk_user_in_endereco FOREIGN KEY (id_user) REFERENCES users (id)
 );
+
 
 CREATE TABLE editora (
     id BIGSERIAL PRIMARY KEY, 
@@ -210,33 +213,30 @@ CREATE TABLE livro (
 );
 
 CREATE TABLE livro_fisico (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     numero_de_paginas SMALLINT NOT NULL,
     peso SMALLINT NOT NULL,
     tipo_capa VARCHAR(60) NOT NULL,
     dimensao_altura SMALLINT NOT NULL,
     dimensao_largura SMALLINT NOT NULL,
     dimensao_profundidade SMALLINT NOT NULL,
-    CONSTRAINT fk_user_in_livrofisico FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_user_in_livrofisico FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE livro_ebook (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
-    CONSTRAINT fk_user_in_livroebook FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_LIVRO_in_livroebook FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE livro_audiobook (
-    id BIGSERIAL PRIMARY KEY, 
-    id_user BIGINT NOT NULL,
+    id_livro BIGSERIAL PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
     narrador VARCHAR(120) NOT NULL, 
     url_download TEXT NOT NULL,
-    CONSTRAINT fk_user_in_livroaudiobook FOREIGN KEY (id_user) REFERENCES users (id)
+    CONSTRAINT fk_livro_in_livroaudiobook FOREIGN KEY (id_livro) REFERENCES livro (id)
 );
 
 CREATE TABLE avaliacao (
@@ -264,11 +264,12 @@ CREATE TABLE livro_possui_categoria (
 );
 
 CREATE TABLE oferta (
-    id BIGSERIAL PRIMARY KEY, 
+    id BIGSERIAL PRIMARY KEY NOT NULL, 
     id_livro BIGINT NOT NULL,
-    id_editora BIGINT,
+    id_editora BIGINT DEFAULT NULL,
     preco MONEY NOT NULL,
-    desconto DECIMAL(5, 2),
+    desconto DECIMAL(5, 2) DEFAULT 0,
+    CONSTRAINT uq_livro_e_id UNIQUE (id, id_livro),
     CONSTRAINT fk_livro_in_oferta FOREIGN KEY (id_livro) REFERENCES livro (id),
     CONSTRAINT fk_editora_in_oferta FOREIGN KEY (id_editora) REFERENCES editora (id)
 );
@@ -277,7 +278,7 @@ CREATE TABLE carrinho (
     id BIGSERIAL PRIMARY KEY, 
     id_user BIGINT NOT NULL,
     data_criacao DATE DEFAULT CURRENT_DATE,
-    status BOOLEAN DEFAULT TRUE,
+    status BOOLEAN DEFAULT TRUE NOT NULL,
     CONSTRAINT fk_user_in_carrinho FOREIGN KEY (id_user) REFERENCES users (id)
 );
 
@@ -286,7 +287,7 @@ CREATE TABLE item_carrinho (
     id_user BIGINT NOT NULL,
     id_oferta BIGINT NOT NULL,
     id_carrinho BIGINT NOT NULL,
-    quantidade SMALLINT NOT NULL,
+    quantidade SMALLINT CHECK(quantidade > 0)NOT NULL,
     preco_unitario MONEY NOT NULL,
     CONSTRAINT uq_user_oferta_carrinho UNIQUE (id_user, id_oferta, id_carrinho),
     CONSTRAINT fk_user_in_item_carrinho FOREIGN KEY (id_user) REFERENCES users (id), 
@@ -314,11 +315,18 @@ CREATE TABLE pagamento (
     CONSTRAINT fk_pedido_in_pagamento FOREIGN KEY (id_pedido) REFERENCES pedido (id)
 );
 
+```
 #
 
 ### SQL + COMMENT ON
 
 <!-- Comentários em SQL -->
+```sql
+
+
+
+```
+
 
 ### Ocupação de Database (Peso)
 
@@ -373,37 +381,34 @@ CREATE TABLE pagamento (
 
 | Campo                | Tipo           | Ocupação (bytes) |
 |----------------------|----------------|------------------|
-| id                   | BIGSERIAL      | 8                |
-| id_user              | BIGINT         | 8                |
+| id_livro             | BIGSERIAL      | 8                |
 | numero_de_paginas    | SMALLINT       | 2                |
 | peso                 | SMALLINT       | 2                |
 | tipo_capa            | VARCHAR(60)    | 60               |
 | dimensao_altura      | SMALLINT       | 2                |
 | dimensao_largura     | SMALLINT       | 2                |
 | dimensao_profundidade| SMALLINT       | 2                |
-| **Total**            |                | **86**           |
+| **Total**            |                | **78**           |
 
 ##### Livro Ebook
 
 | Campo           | Tipo           | Ocupação (bytes) |
 |-----------------|----------------|------------------|
-| id              | BIGSERIAL      | 8                |
-| id_user         | BIGINT         | 8                |
+| id_livro        | BIGSERIAL      | 8                |
 | tamanho_arquivo | SMALLINT       | 2                |
 | formato_arquivo | VARCHAR(40)    | 40               |
-| **Total**       |                | **58**           |
+| **Total**       |                | **50**           |
 
 ##### Livro Audiobook
 
 | Campo           | Tipo           | Ocupação (bytes) |
 |-----------------|----------------|------------------|
-| id              | BIGSERIAL      | 8                |
-| id_user         | BIGINT         | 8                |
+| id_livro        | BIGSERIAL      | 8                |
 | tamanho_arquivo | SMALLINT       | 2                |
 | formato_arquivo | VARCHAR(40)    | 40               |
 | narrador        | VARCHAR(120)   | 120              |
 | url_download    | TEXT           | 200 (estimado)   |
-| **Total**       |                | **378**          |
+| **Total**       |                | **370**          |
 
 ##### Avaliação
 
@@ -540,21 +545,21 @@ CREATE TABLE pagamento (
 
 | Índice            | Ocupação (bytes) |
 |-------------------|------------------|
-| PRIMARY KEY (id)  | 12               |
+| PRIMARY KEY (id_livro)  | 12               |
 | **Total**         | **12**           |
 
 ##### Livro Ebook
 
 | Índice            | Ocupação (bytes) |
 |-------------------|------------------|
-| PRIMARY KEY (id)  | 12               |
+| PRIMARY KEY (id_livro)  | 12               |
 | **Total**         | **12**           |
 
 ##### Livro Audiobook
 
 | Índice            | Ocupação (bytes) |
 |-------------------|------------------|
-| PRIMARY KEY (id)  | 12               |
+| PRIMARY KEY (id_livro)  | 12               |
 | **Total**         | **12**           |
 
 ##### Avaliação
@@ -659,13 +664,177 @@ Triggers são mecanismos importantes em sistemas de banco de dados que permitem 
 - **Centralização da Lógica de Negócio:** Centralizam regras de negócio, facilitando manutenção e aplicação consistente.
 
 
-#### Trigger01
+#### Trigger - 01
+
+```sql
+
+-- Trigger elaborada para gerar automaticamente a agregação fraca 'Oferta'
+
+CREATE OR REPLACE FUNCTION create_generate_oferta()
+RETURNS TRIGGER AS $$
+BEGIN 
+
+	INSERT INTO oferta (id_livro, id_editora, preco)
+		VALUES (NEW.id, NEW.id_editora, NEW.preco);
+
+	RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql; 
+
+CREATE TRIGGER create_generate_oferta
+AFTER INSERT ON livro 
+FOR EACH ROW 
+EXECUTE PROCEDURE create_generate_oferta()
+
+```
 
 
-<!-- Descrição da Trigger01 -->
+#### Trigger - 02
 
 
-#### Trigger02
+```sql
 
+  -- Trigger elaborada para verificar a disponibilidade de um item, de acordo com a quantidade escolhida.
+
+CREATE OR REPLACE FUNCTION verificar_disponibilidade_item()
+RETURNS TRIGGER AS $$
+BEGIN
+	
+    IF (SELECT quantidade FROM livro WHERE id = (SELECT id_livro FROM oferta WHERE id = NEW.id_oferta)) < NEW.quantidade THEN
+        RAISE EXCEPTION 'Quantidade insuficiente no estoque';
+    END IF;
+    RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER verificar_disponibilidade_item_trigger
+BEFORE INSERT ON item_carrinho
+FOR EACH ROW
+EXECUTE FUNCTION verificar_disponibilidade_item();
+
+```
+
+#### Trigger - 03
 
 <!-- Descrição da Trigger02 -->
+
+
+```sql
+
+-- Trigger elaborada para atualizar a quantidade de livro, de acordo com um pedido com status = True (ou seja, quando ocorre a venda)
+
+CREATE OR REPLACE FUNCTION atualizar_quantidade_livro()
+RETURNS TRIGGER AS $$
+DECLARE
+    items_vendidos CURSOR (key BIGINT) FOR SELECT * FROM item_carrinho ic WHERE ic.id_carrinho = key; 
+    item RECORD;
+    quantidade_vendida INTEGER;
+    livro_id BIGINT;
+BEGIN
+    IF (TG_OP = 'UPDATE' AND NEW.status = TRUE) THEN
+	
+        OPEN items_vendidos(OLD.id_carrinho);
+        LOOP
+            FETCH items_vendidos INTO item;
+            EXIT WHEN NOT FOUND;
+
+            SELECT id_livro
+            INTO livro_id
+            FROM oferta o
+            WHERE o.id = item.id_oferta;
+
+            UPDATE livro
+            SET quantidade = quantidade - item.quantidade
+            WHERE id = livro_id;
+
+        END LOOP;
+
+        CLOSE items_vendidos;
+
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER atualizar_quantidade_livro_trigger
+AFTER UPDATE ON pedido
+FOR EACH ROW
+EXECUTE FUNCTION atualizar_quantidade_livro();
+
+```
+
+#### Trigger - 04
+
+
+```sql
+
+-- Trigger para verificar se o usuário já avaliou o livro ou não
+
+CREATE OR REPLACE FUNCTION verificar_unicidade_avaliacao()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se o usuário já avaliou o livro
+    IF EXISTS (SELECT 1 FROM avaliacao WHERE id_user = NEW.id_user AND id_livro = NEW.id_livro) THEN
+        RAISE EXCEPTION 'Usuário já avaliou este livro';
+    END IF;
+
+    -- Verifica se o usuário comprou o livro
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pedido p
+        JOIN item_carrinho ic ON p.id_carrinho = ic.id_carrinho
+        JOIN oferta o ON ic.id_oferta = o.id
+        WHERE p.id_user = NEW.id_user AND o.id_livro = NEW.id_livro AND p.status = TRUE 
+    ) THEN
+        RAISE EXCEPTION 'Usuário não comprou este livro';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER verificar_unicidade_avaliacao_trigger
+BEFORE INSERT ON avaliacao
+FOR EACH ROW
+EXECUTE FUNCTION verificar_unicidade_avaliacao();
+
+```
+
+### PL Functions
+
+
+
+#### PL Function - 01
+
+```sql
+
+-- Criação de pedido de acordo com a entidade carrinho com status TRUE
+
+CREATE OR REPLACE FUNCTION create_generate_pedido(user_id BIGINT)
+RETURNS VOID AS $$
+DECLARE 
+    all_items_carrinho CURSOR (key INTEGER) FOR SELECT * FROM item_carrinho WHERE id_carrinho = key; 
+    id_carrinho_ativo INTEGER;
+    valor_total MONEY := 0;
+    item RECORD;
+BEGIN 
+
+    SELECT id 
+    INTO id_carrinho_ativo
+    FROM carrinho c
+    WHERE c.id_user = user_id AND c.status = TRUE;
+
+    FOR item IN all_items_carrinho(id_carrinho_ativo) LOOP 
+        valor_total := valor_total + (item.preco_unitario * item.quantidade);
+    END LOOP;
+
+    INSERT INTO pedido (id_user, id_carrinho, valor_total)
+    VALUES (user_id, id_carrinho_ativo, valor_total);
+
+END;
+$$ LANGUAGE plpgsql;
+
+```

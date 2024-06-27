@@ -1,3 +1,5 @@
+-- Criação de pedido de acordo com a entidade carrinho com status TRUE
+
 CREATE OR REPLACE FUNCTION create_generate_pedido(user_id BIGINT)
 RETURNS VOID AS $$
 DECLARE 
@@ -21,5 +23,3 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
-
--- TESTADO (100%)
