@@ -1,9 +1,7 @@
 # Modelagem de Banco de Dados
 
-- Esse repositóprio se resume exclusivamente a Modelagem de Banco de Dados do projeto LibSpace, no qual esse e mais 2 Repositórios fazem parte do mesmo projeto.
+- Esse repositóprio se resume exclusivamente a Modelagem de Banco de Dados do projeto LibSpace, no qual esse e mais 1 Repositório fazem parte do mesmo projeto.
 - Repositório [Back-End](https://github.com/pereiraR3/BackEnd-LibSpace-Online-bookstore-system)
-- Repositório [Front-End](https://github.com/pereiraR3/FrontEnd-LibSpace-Online-bookstore-system)
-
 ## Modelagem Conceitual
 
 ### DER (Diagrama Entidade-Relacionamento)
