@@ -210,7 +210,7 @@ CREATE TABLE livro (
 
 -- Create table livro_fisico
 CREATE TABLE livro_fisico (
-    id_livro BIGSERIAL PRIMARY KEY, 
+    id_livro BIGINT PRIMARY KEY, 
     numero_de_paginas SMALLINT NOT NULL,
     peso SMALLINT NOT NULL,
     tipo_capa VARCHAR(60) NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE livro_fisico (
 
 -- Create table livro_ebook
 CREATE TABLE livro_ebook (
-    id_livro BIGSERIAL PRIMARY KEY, 
+    id_livro BIGINT PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
     CONSTRAINT fk_livro_in_livroebook FOREIGN KEY (id_livro) REFERENCES livro (id) ON DELETE CASCADE
@@ -230,7 +230,7 @@ CREATE TABLE livro_ebook (
 
 -- Create table livro_audiobook
 CREATE TABLE livro_audiobook (
-    id_livro BIGSERIAL PRIMARY KEY, 
+    id_livro BIGINT PRIMARY KEY, 
     tamanho_arquivo SMALLINT NOT NULL,
     formato_arquivo VARCHAR(40) NOT NULL,
     narrador VARCHAR(120) NOT NULL, 
@@ -321,7 +321,6 @@ CREATE TABLE pagamento (
     data_pagamento DATE DEFAULT CURRENT_DATE, 
     CONSTRAINT fk_pedido_in_pagamento FOREIGN KEY (id_pedido) REFERENCES pedido (id) ON DELETE CASCADE
 );
-
 
 ```
 #
