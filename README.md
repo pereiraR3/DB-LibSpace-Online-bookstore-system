@@ -107,10 +107,19 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `id` (BIGSERIAL, PRIMARY KEY): Identificador único da categoria.
   - `nome` (VARCHAR(60), NOT NULL): Nome da categoria.
 
+- **Genêro**
+  - `id` (BIGSERIAL, PRIMARY KEY): Identificador único de genêro.
+  - `nome` (VARCHAR(60), NOT NULL): Nome do genêro.
+
 - **Livro Possui Categoria**
   - `id_livro` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do livro.
   - `id_categoria` (BIGINT, NOT NULL, FOREIGN KEY): Identificador da categoria.
   - `UNIQUE (id_livro, id_categoria)`: Constrição de unicidade para garantir que a combinação livro-categoria seja única.
+
+- **Livro Possui Categoria**
+  - `id_livro` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do livro.
+  - `id_genero` (BIGINT, NOT NULL, FOREIGN KEY): Identificador do genêro.
+  - `UNIQUE (id_livro, id_genero)`: Constrição de unicidade para garantir que a combinação livro-genêro seja única.
 
 - **Oferta**
   - `id` (BIGSERIAL, PRIMARY KEY): Identificador único da oferta.
@@ -256,6 +265,12 @@ CREATE TABLE categoria (
     nome VARCHAR(60) NOT NULL
 );
 
+-- Create table genero
+CREATE TABLE genero (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(60) NOT NULL
+);
+
 -- Create table livro_possui_categoria
 CREATE TABLE livro_possui_categoria (
     id_livro BIGINT NOT NULL,
@@ -263,6 +278,15 @@ CREATE TABLE livro_possui_categoria (
     CONSTRAINT uq_idlivro_e_idcategoria UNIQUE (id_livro, id_categoria), 
     CONSTRAINT fk_livro_in_livro_possui_categoria FOREIGN KEY (id_livro) REFERENCES livro (id) ON DELETE CASCADE,
     CONSTRAINT fk_categoria_in_livro_possui_categoria FOREIGN KEY (id_categoria) REFERENCES categoria (id) ON DELETE CASCADE
+);
+
+-- Create table livro_possui_genero
+CREATE TABLE livro_possui_genero (
+    id_livro BIGINT NOT NULL,
+    id_genero BIGINT NOT NULL,
+    CONSTRAINT uq_idlivro_e_idgenero UNIQUE (id_livro, id_genero), 
+    CONSTRAINT fk_livro_in_livro_possui_categoria FOREIGN KEY (id_livro) REFERENCES livro (id) ON DELETE CASCADE,
+    CONSTRAINT fk_categoria_in_livro_possui_categoria FOREIGN KEY (id_genero) REFERENCES genero (id) ON DELETE CASCADE
 );
 
 -- Create table oferta
@@ -437,6 +461,16 @@ CREATE TABLE pagamento (
 | nome            | VARCHAR(60)    | 60               |
 | **Total**       |                | **68**           |
 
+
+##### Genêro
+
+| Campo           | Tipo           | Ocupação (bytes) |
+|-----------------|----------------|------------------|
+| id              | BIGSERIAL      | 8                |
+| nome            | VARCHAR(60)    | 60               |
+| **Total**       |                | **68**           |
+
+
 ##### Livro Possui Categoria
 
 | Campo           | Tipo           | Ocupação (bytes) |
@@ -444,6 +478,15 @@ CREATE TABLE pagamento (
 | id_livro        | BIGINT         | 8                |
 | id_categoria    | BIGINT         | 8                |
 | **Total**       |                | **16**           |
+
+##### Livro Possui Genêro
+
+| Campo           | Tipo           | Ocupação (bytes) |
+|-----------------|----------------|------------------|
+| id_livro        | BIGINT         | 8                |
+| id_genero       | BIGINT         | 8                |
+| **Total**       |                | **16**           |
+
 
 ##### Editora
 
@@ -585,6 +628,14 @@ CREATE TABLE pagamento (
 | PRIMARY KEY (id)  | 12               |
 | **Total**         | **12**           |
 
+
+##### Genêro
+
+| Índice            | Ocupação (bytes) |
+|-------------------|------------------|
+| PRIMARY KEY (id)  | 12               |
+| **Total**         | **12**           |
+
 ##### Livro Possui Categoria
 
 | Índice            | Ocupação (bytes) |
@@ -592,6 +643,15 @@ CREATE TABLE pagamento (
 | UNIQUE (id_livro, id_categoria) | 20 |
 | FOREIGN KEY (id_livro) | 12         |
 | FOREIGN KEY (id_categoria) | 12     |
+| **Total**         | **44**           |
+
+##### Livro Possui Genêro
+
+| Índice            | Ocupação (bytes) |
+|-------------------|------------------|
+| UNIQUE (id_livro, id_genero) | 20 |
+| FOREIGN KEY (id_livro) | 12         |
+| FOREIGN KEY (id_genero) | 12     |
 | **Total**         | **44**           |
 
 ##### Editora
