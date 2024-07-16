@@ -3,10 +3,10 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     cpf CHAR(11) UNIQUE NOT NULL,
     nome VARCHAR(60) NOT NULL, 
-    senha TEXT NOT NULL, 
+    senha VARCHAR(80) NOT NULL, 
     email VARCHAR(120) UNIQUE NOT NULL,
-    url_foto TEXT,
-    url_website TEXT, 
+    url_foto VARCHAR(1000),
+    url_website VARCHAR(1000), 
     bio VARCHAR(2000) NOT NULL,
     role VARCHAR(20) NOT NULL
 );
@@ -44,7 +44,7 @@ CREATE TABLE livro (
     quantidade SMALLINT NOT NULL,
     autor_nome VARCHAR(160) NOT NULL,
     ano_publicacao SMALLINT NOT NULL,
-    capa_url TEXT NOT NULL,
+    capa_url VARCHAR(1000) NOT NULL,
     CONSTRAINT fk_editora_in_livro FOREIGN KEY (id_editora) REFERENCES editora (id) ON DELETE SET NULL
 );
 
@@ -93,13 +93,13 @@ CREATE TABLE avaliacao (
 -- Create table categoria
 CREATE TABLE categoria (
     id BIGSERIAL PRIMARY KEY, 
-    nome VARCHAR(60) NOT NULL
+    nome VARCHAR(60) UNIQUE NOT NULL
 );
 
 -- Create table genero
 CREATE TABLE genero (
     id BIGSERIAL PRIMARY KEY,
-    nome VARCHAR(60) NOT NULL
+    nome VARCHAR(60) UNIQUE NOT NULL
 );
 
 -- Create table livro_possui_categoria

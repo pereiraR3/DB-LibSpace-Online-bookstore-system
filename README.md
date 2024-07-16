@@ -38,10 +38,10 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `id` (BIGSERIAL, PRIMARY KEY): Identificador único do usuário.
   - `cpf` (BIGINT, UNIQUE, NOT NULL): CPF do usuário.
   - `nome` (VARCHAR(60), NOT NULL): Nome do usuário.
-  - `senha` (TEXT, NOT NULL): Senha do usuário.
+  - `senha` (VARCHAR(80), NOT NULL): Senha do usuário.
   - `email` (VARCHAR(120), UNIQUE, NOT NULL): E-mail do usuário.
-  - `url_foto` (TEXT): URL ou Caminho de Diretório da foto do usuário.
-  - `url_website` (TEXT): URL do site do usuário.
+  - `url_foto` (VARCHAR(1000)): URL ou Caminho de Diretório da foto do usuário.
+  - `url_website` (VARCHAR(1000)): URL do site do usuário.
   - `bio` (VARCHAR(2000), NOT NULL): Biografia do usuário.
   - `role` (VARCHAR(20), NOT NULL): Papel do usuário no sistema.
 
@@ -72,7 +72,7 @@ A seguir estão todas as informações sobre as Entidades e seus respectivos atr
   - `quantidade` (SMALLINT, NOT NULL): Quantidade disponível.
   - `autor_nome` (VARCHAR(160), NOT NULL): Nome do autor.
   - `ano_publicacao` (SMALLINT, NOT NULL): Ano de publicação.
-  - `capa_url` (TEXT, NOT NULL): URL da capa do livro.
+  - `capa_url` (VARCHAR(1000), NOT NULL): URL da capa do livro.
 
 - **Livro Físico**
   - `id_livro` (BIGSERIAL, PRIMARY KEY): Identificador único do livro físico e FK em relação a livro.
@@ -172,10 +172,10 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     cpf CHAR(11) UNIQUE NOT NULL,
     nome VARCHAR(60) NOT NULL, 
-    senha TEXT NOT NULL, 
+    senha VARCHAR(80) NOT NULL, 
     email VARCHAR(120) UNIQUE NOT NULL,
-    url_foto TEXT,
-    url_website TEXT, 
+    url_foto VARCHAR(1000),
+    url_website VARCHAR(1000), 
     bio VARCHAR(2000) NOT NULL,
     role VARCHAR(20) NOT NULL
 );
@@ -213,7 +213,7 @@ CREATE TABLE livro (
     quantidade SMALLINT NOT NULL,
     autor_nome VARCHAR(160) NOT NULL,
     ano_publicacao SMALLINT NOT NULL,
-    capa_url TEXT NOT NULL,
+    capa_url VARCHAR(1000) NOT NULL,
     CONSTRAINT fk_editora_in_livro FOREIGN KEY (id_editora) REFERENCES editora (id) ON DELETE SET NULL
 );
 
@@ -262,13 +262,13 @@ CREATE TABLE avaliacao (
 -- Create table categoria
 CREATE TABLE categoria (
     id BIGSERIAL PRIMARY KEY, 
-    nome VARCHAR(60) NOT NULL
+    nome VARCHAR(60) UNIQUE NOT NULL
 );
 
 -- Create table genero
 CREATE TABLE genero (
     id BIGSERIAL PRIMARY KEY,
-    nome VARCHAR(60) NOT NULL
+    nome VARCHAR(60) UNIQUE NOT NULL
 );
 
 -- Create table livro_possui_categoria
@@ -354,10 +354,7 @@ CREATE TABLE pagamento (
 <!-- Comentários em SQL -->
 ```sql
 
-
-
 ```
-
 
 ### Ocupação de Database (Peso)
 
@@ -374,13 +371,13 @@ CREATE TABLE pagamento (
 | id         | BIGSERIAL      | 8                |
 | cpf        | BIGINT         | 8                |
 | nome       | VARCHAR(60)    | 60               |
-| senha      | TEXT           | 200 (estimado)   |
+| senha      | VARCHAR(80)    | 80               |
 | email      | VARCHAR(120)   | 120              |
-| url_foto   | TEXT           | 200 (estimado)   |
-| url_website| TEXT           | 200 (estimado)   |
+| url_foto   | VARCHAR(1000)  | 1000             |
+| url_website| VARCHAR(1000)  | 1000             |
 | bio        | VARCHAR(2000)  | 2000             |
 | role       | VARCHAR(20)    | 20               |
-| **Total**  |                | **2816**         |
+| **Total**  |                | **4296**         |
 
 ##### Endereço
 
@@ -405,7 +402,7 @@ CREATE TABLE pagamento (
 | quantidade     | SMALLINT       | 2                |
 | autor_nome     | VARCHAR(160)   | 160              |
 | ano_publicacao | DATE           | 4                |
-| capa_url       | TEXT           | 200 (estimado)   |
+| capa_url       | VARCHAR(1000)  | 1000             |
 | **Total**      |                | **494**          |
 
 ##### Livro Físico
@@ -626,7 +623,8 @@ CREATE TABLE pagamento (
 | Índice            | Ocupação (bytes) |
 |-------------------|------------------|
 | PRIMARY KEY (id)  | 12               |
-| **Total**         | **12**           |
+| UNIQUE (nome)     | 12               |
+| **Total**         | **24**           |
 
 
 ##### Genêro
@@ -634,7 +632,8 @@ CREATE TABLE pagamento (
 | Índice            | Ocupação (bytes) |
 |-------------------|------------------|
 | PRIMARY KEY (id)  | 12               |
-| **Total**         | **12**           |
+| UNIQUE (nome)     | 12               |
+| **Total**         | **24**           |
 
 ##### Livro Possui Categoria
 
